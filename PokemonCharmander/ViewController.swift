@@ -17,9 +17,12 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        starter()
-        
+        viewmode()
+        faceID()
+        viewtools()
+    }
+    
+    func viewmode () {
         let userInterfaceStyle = traitCollection.userInterfaceStyle
         if userInterfaceStyle == .dark {
             myButton.setTitleColor(.red, for: .normal)
@@ -30,7 +33,39 @@ class ViewController: UIViewController {
             againButton.setTitleColor(.black, for: .normal)
             view.backgroundColor = .yellow
         }
+    }
+    
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        viewmode()
+        faceID()
+        viewtools()
+    }
+    
+    @objc func faceID() {
+        let authContext = LAContext()
+        var error: NSError?
         
+        if authContext.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) {
+            authContext.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: "Is it you?") { (success, error) in
+                if success == true {
+                    DispatchQueue.main.async { [self] in
+                        myLabel.text = "Success!"
+                        myButton.isHidden = false
+                        againButton.isHidden = true
+                    }
+                } else {
+                    DispatchQueue.main.async { [self] in
+                        myLabel.text = "Error!"
+                        myButton.isHidden = true
+                        againButton.isHidden = false
+                    }
+                }
+            }
+        }
+        
+    }
+    
+    func viewtools() {
         let width = view.frame.size.width
         let height = view.frame.size.height
         
@@ -51,35 +86,9 @@ class ViewController: UIViewController {
         view.addSubview(againButton)
         
         againButton.isHidden = true
-        againButton.addTarget(self, action: #selector(starter), for: .touchUpInside)
+        againButton.addTarget(self, action: #selector(faceID), for: .touchUpInside)
         myButton.isHidden = true
         myButton.addTarget(self, action: #selector(myAction), for: .touchUpInside)
-    }
-    
-    @objc func starter() {
-        let authContext = LAContext()
-        var error: NSError?
-        
-        if authContext.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) {
-            
-            authContext.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: "Is it you?") { (success, error) in
-                if success == true {
-                    //successful auth
-                    DispatchQueue.main.async {
-                        self.myLabel.text = "Success!"
-                        self.myButton.isHidden = false
-                        self.againButton.isHidden = true
-                    }
-                } else {
-                    DispatchQueue.main.async {
-                        self.myLabel.text = "Error!"
-                        self.myButton.isHidden = true
-                        self.againButton.isHidden = false
-                    }
-                }
-            }
-            
-        }
     }
     
     @objc func myAction() {
@@ -101,21 +110,6 @@ class ViewController: UIViewController {
             myImage.image = UIImage(named: "charmander")
             myLabel.text = "charmander"
             myButton.setTitle("get bigger", for: .normal)
-        }
-    }
-    
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        starter()
-        viewDidLoad()
-        let userInterfaceStyle = traitCollection.userInterfaceStyle
-        if userInterfaceStyle == .dark {
-            myButton.setTitleColor(.red, for: .normal)
-            againButton.setTitleColor(.white, for: .normal)
-            view.backgroundColor = .black
-        } else {
-            myButton.setTitleColor(.red, for: .normal)
-            againButton.setTitleColor(.black, for: .normal)
-            view.backgroundColor = .yellow
         }
     }
     
